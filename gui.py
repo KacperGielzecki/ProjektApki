@@ -53,8 +53,9 @@ def run_game(player_id, send_move, receive_move):
 
     player_board = create_board()
     enemy_board = create_board()
-    enemy_ships = []
     ship_positions = []
+
+    place_channel = pygame.mixer.Channel(5)
 
     game_phase = "setup"
     current_ship_index = 0
@@ -150,7 +151,7 @@ def run_game(player_id, send_move, receive_move):
                             if can_place_ship(player_board, row, col, length, orientation):
                                 place_ship(player_board, row, col, length, orientation)
                                 ship_positions.append((row, col, length, orientation))
-                                sounds["place"].play()
+                                place_channel.play(sounds["place"])
                                 SHIP_TYPES[current_ship_index] = (name, qty - 1, length)
                                 if SHIP_TYPES[current_ship_index][1] == 0:
                                     current_ship_index += 1
@@ -181,83 +182,13 @@ def run_game(player_id, send_move, receive_move):
                         game_over = True
                         winner = 1 - player_id
                 elif move.get("type") == "result":
-                    r, c = move["pos"]
-                    hit = move["hit"]
-                    enemy_board[r][c] = 2 if hit else 3
-                    sounds["hit" if hit else "miss"].play()
+                        r, c = move["pos"]
+                        hit = move["hit"]
+                        enemy_board[r][c] = 2 if hit else 3
+                        sounds["hit" if hit else "miss"].play()
 
-                    if hit:
-                        def is_ship_sunk(board, r, c):
-                            directions = [(-1,0), (1,0), (0,-1), (0,1)]
-                            visited = set()
-                            stack = [(r, c)]
-                            while stack:
-                                x, y = stack.pop()
-                                visited.add((x, y))
-                                for dx, dy in directions:
-                                    nx, ny = x + dx, y + dy
-                                    if 0 <= nx < GRID_SIZE and 0 <= ny < GRID_SIZE:
-                                        if board[nx][ny] == 1:
-                                            return False
-                                        elif board[nx][ny] == 2 and (nx, ny) not in visited:
-                                            stack.append((nx, ny))
-                            return True
+                        last_shot_result = "Trafienie" if hit else "Pudło"
 
-                        def get_sunk_length(board, r, c):
-                            directions = [(-1,0), (1,0), (0,-1), (0,1)]
-                            visited = set()
-                            stack = [(r, c)]
-                            length = 0
-                            while stack:
-                                x, y = stack.pop()
-                                visited.add((x, y))
-                                length += 1
-                                for dx, dy in directions:
-                                    nx, ny = x + dx, y + dy
-                                    if 0 <= nx < GRID_SIZE and 0 <= ny < GRID_SIZE:
-                                        if board[nx][ny] == 2 and (nx, ny) not in visited:
-                                            stack.append((nx, ny))
-                            return length
-
-                        if hit:
-                            # Zbieranie nowego lub aktualizacja istniejącego statku
-                            def collect_connected_hits(r, c):
-                                stack = [(r, c)]
-                                visited = set()
-                                while stack:
-                                    x, y = stack.pop()
-                                    visited.add((x, y))
-                                    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                                        nx, ny = x + dx, y + dy
-                                        if 0 <= nx < GRID_SIZE and 0 <= ny < GRID_SIZE:
-                                            if enemy_board[nx][ny] == 2 and (nx, ny) not in visited:
-                                                stack.append((nx, ny))
-                                return visited
-
-                            # Zbiór wszystkich aktualnie połączonych trafionych pól (nowy lub kontynuacja)
-                            connected = collect_connected_hits(r, c)
-
-                            # Czy już istniał taki statek? Jeśli tak – zaktualizuj
-                            updated = False
-                            for ship in enemy_ships:
-                                if ship["cells"] & connected:
-                                    ship["cells"] |= connected
-                                    ship["hits"].add((r, c))
-                                    updated = True
-                                    break
-
-                            if not updated:
-                                enemy_ships.append({"cells": connected, "hits": {(r, c)}})
-
-                            # Sprawdź, czy któryś ze statków jest cały trafiony
-                            for ship in enemy_ships:
-                                if ship["cells"] == ship["hits"]:
-                                    last_shot_result = "Trafienie – Zatopiony"
-                                    break
-                            else:
-                                last_shot_result = "Trafienie"
-                        else:
-                            last_shot_result = "Pudło"
                 elif move.get("type") == "ready":
                     opponent_ready = True
                 elif move.get("type") == "start":
