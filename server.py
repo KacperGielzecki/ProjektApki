@@ -69,7 +69,6 @@ def server_main():
     sock.bind((host, port))
     sock.listen(1)
 
-    # GUI z wyświetlaniem IP i oczekiwaniem
     pygame.init()
     screen = pygame.display.set_mode((400, 200))
     pygame.display.set_caption("Serwer gry - Statki")
@@ -99,7 +98,6 @@ def server_main():
 
     pygame.quit()
 
-    # Teraz gra się uruchamia poprawnie
     lock = threading.Lock()
     buffer = []
 

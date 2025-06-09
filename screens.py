@@ -1,7 +1,6 @@
 import pygame
 import sys
 
-# Dopasuj do tego samego rozmiaru co GUI
 WIDTH = 800
 HEIGHT = 600
 
