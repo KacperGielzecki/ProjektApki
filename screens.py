@@ -1,10 +1,19 @@
 import pygame
 import sys
+import os
 
 WIDTH = 800
 HEIGHT = 600
 
-def show_victory_screen(image_path="static/screens/victory.png"):
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
+def show_victory_screen(image_path=None):
+    if image_path is None:
+        image_path = resource_path("static/screens/victory.png")
+
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Zwycięstwo!")
@@ -14,7 +23,10 @@ def show_victory_screen(image_path="static/screens/victory.png"):
     pygame.display.flip()
     wait_for_close()
 
-def show_defeat_screen(image_path="static/screens/defeat.png"):
+def show_defeat_screen(image_path=None):
+    if image_path is None:
+        image_path = resource_path("static/screens/defeat.png")
+
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Przegrana")

@@ -45,9 +45,9 @@ def show_waiting_screen(ip_address):
 
 def start_server_socket():
     host = '0.0.0.0'
-    port = 5000
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind((host, port))
+    sock.bind((host, 0))  # dynamiczny port
+    port = sock.getsockname()[1]
     sock.listen(1)
     conn, addr = sock.accept()
     show_waiting_screen.client_connected = True
@@ -64,9 +64,9 @@ def server_main():
     ip_address = get_local_ip()
 
     host = '0.0.0.0'
-    port = 5000
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind((host, port))
+    sock.bind((host, 0))  # dynamiczny port
+    port = sock.getsockname()[1]
     sock.listen(1)
 
     pygame.init()
@@ -85,7 +85,7 @@ def server_main():
         screen.fill((30, 30, 30))
         text = font.render("Oczekiwanie na gracza...", True, pygame.Color("white"))
         screen.blit(text, (50, 50))
-        ip_text = font.render(f"IP serwera: {ip_address}", True, pygame.Color("gray"))
+        ip_text = font.render(f"{ip_address}:{port}", True, pygame.Color("gray"))
         screen.blit(ip_text, (50, 100))
         pygame.display.flip()
         clock.tick(30)
@@ -122,7 +122,6 @@ def server_main():
 
     threading.Thread(target=listen, daemon=True).start()
     run_game(player_id=0, send_move=send_move, receive_move=receive_move)
-
 
 if __name__ == "__main__":
     server_main()

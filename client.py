@@ -45,13 +45,21 @@ def get_ip_gui():
         screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
         pygame.draw.rect(screen, color, input_box, 2)
 
-        prompt = font.render("Wpisz IP serwera:", True, pygame.Color("white"))
-        screen.blit(prompt, (50, 10))
+        prompt = font.render("Wpisz IP i port [IP:PORT]:", True, pygame.Color("white"))
+        screen.blit(prompt, (20, 10))
 
         pygame.display.flip()
 
     pygame.quit()
-    return text.strip()
+
+    ip_input = text.strip()
+    if ':' in ip_input:
+        ip, port = ip_input.split(':')
+        port = int(port)
+    else:
+        ip = ip_input
+        port = 5000
+    return ip, port
 
 def send(sock, msg):
     sock.sendall(str(msg).encode())
@@ -61,8 +69,7 @@ def receive(sock):
     return eval(data.decode())
 
 def client_main():
-    server_ip = get_ip_gui()
-    port = 5000
+    server_ip, port = get_ip_gui()
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((server_ip, port))
 

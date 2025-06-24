@@ -1,7 +1,14 @@
 import pygame
 import time
+import os
+import sys
 from board import *
 from screens import show_victory_screen, show_defeat_screen
+
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 CELL_SIZE = 40
 GRID_SIZE = 10
@@ -41,13 +48,12 @@ def run_game(player_id, send_move, receive_move):
     pygame.display.set_caption(f"Statki - Gracz {player_id + 1}")
     font = pygame.font.SysFont("arial", 24, bold=True)
 
-    # Dźwięki
     sounds = {
-        "hit": pygame.mixer.Sound("static/sounds/hit.wav"),
-        "miss": pygame.mixer.Sound("static/sounds/miss.wav"),
-        "place": pygame.mixer.Sound("static/sounds/place.wav"),
-        "win": pygame.mixer.Sound("static/sounds/win.wav"),
-        "lose": pygame.mixer.Sound("static/sounds/lose.wav"),
+        "hit": pygame.mixer.Sound(resource_path("static/sounds/hit.wav")),
+        "miss": pygame.mixer.Sound(resource_path("static/sounds/miss.wav")),
+        "place": pygame.mixer.Sound(resource_path("static/sounds/place.wav")),
+        "win": pygame.mixer.Sound(resource_path("static/sounds/win.wav")),
+        "lose": pygame.mixer.Sound(resource_path("static/sounds/lose.wav")),
     }
 
     player_board = create_board()
